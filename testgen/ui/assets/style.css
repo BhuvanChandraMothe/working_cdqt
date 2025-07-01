@@ -1,0 +1,396 @@
+body {
+    --primary-color: #06a04a;
+    --link-color: #1976d2;
+    --error-color: #EF5350;
+
+    --red: #EF5350;
+    --orange: #FF9800;
+    --yellow: #FDD835;
+    --green: #9CCC65;
+    --purple: #AB47BC;
+    --blue: #42A5F5;
+    --brown: #8D6E63;
+    --grey: #BDBDBD;
+
+    --primary-text-color: #000000de;
+    --secondary-text-color: #0000008a;
+    --disabled-text-color: #00000042;
+    --caption-text-color: rgba(49, 51, 63, 0.6); /* Match Streamlit's caption color */
+    --border-color: rgba(0, 0, 0, .12);
+
+    --sidebar-background-color: white;
+    --sidebar-item-hover-color: #f5f5f5;
+    --sidebar-active-item-color: #f5f5f5;
+    --sidebar-active-item-border-color: #b4e3c9;
+
+    --field-underline-color: #9e9e9e;
+
+    --dk-text-value-background: aliceblue;
+    --dk-card-background: #fff;
+
+    --dk-tooltip-background: rgb(255, 255, 255);
+
+    --portal-background: white;
+    --portal-box-shadow: rgba(0, 0, 0, 0.16) 0px 4px 16px;
+    --select-hover-background: rgb(240, 242, 246);
+}
+
+img.dk-logo-img {
+    margin: 0 0 30px 0;
+    width:100%;
+}
+
+/* Header bar */
+MainMenu {
+    display: none;
+}
+
+header {
+    display: none !important;
+}
+
+footer {
+    display: none !important;
+}
+/* ... */
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    width: 250px;
+    z-index: 999;
+    background-color: var(--sidebar-background-color);
+}
+
+[data-testid="stSidebarNav"],
+[data-testid="stSidebarUserContent"] {
+    display: none;
+}
+/*  */
+
+/* Main content */
+.appview-container > :nth-child(2 of section) {
+    background-color: #f8f9fa;
+}
+
+section.main > :nth-child(1 of div).block-container {
+    padding: 12px 24px 24px;
+}
+
+div[data-testid="stVerticalBlock"] {
+    gap: 0.5rem;
+}
+
+.appview-container:has(section[data-testid="stSidebar"]) div[data-testid="stSidebarCollapsedControl"] {
+    top: 0.5rem;
+    border-radius: 4px;
+    background-color: var(--border-color);
+    padding: 3px 0 0 8px;
+}
+/*  */
+
+/* Dialog - sets the width of all st.dialog */
+/* There is no way to target "large" and "small" dialogs reliably */
+div[data-testid="stDialog"] div[role="dialog"] {
+    width: calc(55rem);
+}
+/*  */
+
+
+div[data-testid="stDialog"] div[role="dialog"]:has(i.s-dialog) {
+    width: calc(35rem);
+}
+
+div[data-testid="stDialog"] div[role="dialog"]:has(i.xl-dialog) {
+    width: calc(95rem);
+}
+
+div[data-testid="stSpinner"] {
+    background: transparent;
+}
+
+div[data-testid="stSpinner"] > div > i {
+    border-color: var(--primary-color) rgba(49, 51, 63, 0.2) rgba(49, 51, 63, 0.2);
+}
+
+/* Theming for buttons, tabs and form inputs */
+button[data-testid="stBaseButton-secondary"]:hover,
+button[data-testid="stBaseButton-secondary"]:focus:not(:active),
+button[data-testid="stBaseButton-secondaryFormSubmit"]:hover,
+button[data-testid="stBaseButton-secondaryFormSubmit"]:focus:not(:active) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+button[data-testid="stBaseButton-secondary"]:active,
+button[data-testid="stBaseButton-secondaryFormSubmit"]:active,
+label[data-baseweb="checkbox"]:has(input[aria-checked="true"]) > span {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color);
+}
+
+div[data-testid="stTextInputRootElement"]:focus-within,
+div[data-testid="stNumberInputContainer"]:focus-within,
+div[data-baseweb="select"]:focus-within > div,
+div[data-baseweb="select"] > div:has(input[aria-expanded="true"]) {
+    border-color: var(--primary-color);
+}
+
+button[data-testid="stTab"][aria-selected="true"],
+button[data-testid="stTab"]:hover {
+    color: var(--primary-color);
+}
+
+div[data-baseweb="tab-highlight"],
+label[data-baseweb="radio"]:has(input[tabindex="0"]) > div:first-child,
+label[data-baseweb="checkbox"]:has(input[aria-checked="true"]) > div:first-child {
+    background-color: var(--primary-color);
+}
+/* */
+
+/* Theming for links */
+body a,
+body a:active,
+body a:hover,
+body a:visited {
+    color: var(--link-color);
+}
+
+body a,
+body a:active,
+body a:visited {
+    text-decoration: unset;
+}
+/*  */
+
+button[title="Show password text"] {
+    display: none;
+}
+
+.element-container:has(iframe[height="0"][title="streamlit_javascript.streamlit_javascript"]),
+.element-container:has(iframe[height="0"][title="testgen.ui.components.utils.component.testgen"]) {
+    display: none !important;
+}
+
+/* Cards Component */
+[data-testid="stVerticalBlockBorderWrapper"]:has(> div > div[data-testid="stVerticalBlock"] > div.element-container > div.stHtml > i.testgen_card) .testgen_card-header > .testgen_card-title {
+    margin: unset;
+    padding: unset;
+    line-height: 25px;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"]:has(> div > div[data-testid="stVerticalBlock"] > div.element-container > div.stHtml > i.testgen_card) .testgen_card-header > .testgen_card-subtitle {
+    margin: unset;
+    padding: unset;
+    margin-top: 4px;
+    line-height: 15px;
+    color: var(--caption-text-color);
+    font-style: italic;
+}
+/* ... */
+
+[data-testid="stVerticalBlockBorderWrapper"]:has(> div > div[data-testid="stVerticalBlock"] > div.element-container > div.stHtml > i.bg-white) {
+    background-color: var(--dk-card-background);
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > div[data-testid="stVerticalBlock"] > div.element-container > div.stHtml > i.flex-row) > div > [data-testid="stVerticalBlock"] {
+    width: 100%;
+    flex-direction: row;
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]:has( > div > div[data-testid="stVerticalBlock"] > div.element-container > div.stHtml > i.flex-row) [data-testid="stVerticalBlock"] > div[data-testid="element-container"],
+div[data-testid="stVerticalBlockBorderWrapper"]:has( > div > div[data-testid="stVerticalBlock"] > div.element-container > div.stHtml > i.flex-row) [data-testid="stVerticalBlock"] > div[data-testid="element-container"] > div[data-testid] {
+    width: auto !important;
+    max-height: 40px;
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]:has( > div > div[data-testid="stVerticalBlock"] > div.element-container > div.stHtml > i.flex-start) [data-testid="stVerticalBlock"] {
+    justify-content: flex-start;
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]:has( > div > div[data-testid="stVerticalBlock"] > div.element-container > div.stHtml > i.flex-end) [data-testid="stVerticalBlock"] {
+    justify-content: flex-end;
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]:has( > div > div[data-testid="stVerticalBlock"] > div.element-container > div.stHtml > i.flex-center) [data-testid="stVerticalBlock"] {
+    justify-content: center;
+}
+
+[data-testid="stVerticalBlock"]:has(> div.element-container > div.stHtml > i.no-flex-gap) {
+    gap: unset;
+}
+
+/* Stylistic equivalent of st.caption("text") for customization
+Use as testgen.caption("text", "extra_styles") */
+.caption {
+    color: var(--caption-text-color);
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+/* Stylistic equivalent of testgen.link() to match font size/style of links
+Use as testgen.text("text", "extra_styles") */
+.text {
+    font-size: 14px;
+    font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+    line-height: 16.5px;
+    margin-bottom: 0;
+}
+
+/* Tooltips */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    content: attr(data-tooltip);
+    left: 0;
+    top: calc(100% + 10px);
+    border-radius: 4px;
+    box-shadow: 0 0 5px 2px rgba(100, 100, 100, 0.6);
+    color: var(--primary-text-color);
+    background-color: var(--dk-tooltip-background);
+    z-index: 10;
+    padding: 8px;
+    width: 200px;
+    transform: translateY(-20px);
+    transition: all 150ms cubic-bezier(.25, .8, .25, 1);
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateY(0);
+    transition-duration: 300ms;
+}
+
+[data-tooltip-position="right"]::after {
+    left: unset;
+    right: 0;
+}
+/*  */
+
+/* Page header */
+.tg-header {
+    margin: 0;
+    padding: 0;
+    font-weight: 500;
+    transition: padding 0.3s;
+}
+
+[data-testid="stSidebarCollapsedControl"] ~ section.main .tg-header {
+    padding-left: 80px;
+}
+
+.tg-header--line {
+    margin: 0;
+    border: none;
+    border-radius: 2px;
+    height: 2px;
+    background-color: var(--disabled-text-color);
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > div[data-testid="stVerticalBlock"] > div.element-container > div.stHtml > i.tg-header--links) [data-testid="stLinkButton"] a {
+    border: none;
+    background: none;
+    padding: 6px;
+    min-height: 24px;
+    color: var(--primary-text-color);
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > div[data-testid="stVerticalBlock"] > div.element-container > div.stHtml > i.tg-header--links) [data-testid="stLinkButton"] a p {
+    font-size: 20px;
+    line-height: 1;
+}
+/*  */
+
+/* Summary bar component */
+.tg-summary-bar--label {
+    margin-bottom: 4px;
+}
+
+.tg-summary-bar {
+    height: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.tg-summary-bar--item {
+    height: 100%;
+}
+
+.tg-summary-bar--caption {
+    margin-top: 4px;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    color: var(--caption-text-color);
+    font-size: 13px;
+    font-style: italic;
+    line-height: 1;
+}
+
+.tg-summary-bar--legend {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    width: auto;
+}
+
+.tg-summary-bar--legend:not(:last-child) {
+    margin-right: 8px;
+}
+
+.tg-summary-bar--legend-dot {
+    margin-right: 2px;
+    font-size: 4px;
+    font-style: normal;
+}
+
+.tg-summary-bar--legend-dot::before {
+    content: '⬤';
+}
+/*  */
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    body {
+        --primary-text-color: rgba(255, 255, 255);
+        --secondary-text-color: rgba(255, 255, 255, .7);
+        --disabled-text-color: rgba(255, 255, 255, .5);
+        --caption-text-color: rgba(250, 250, 250, .6); /* Match Streamlit's caption color */
+        --border-color: rgba(255, 255, 255, .25);
+
+        --sidebar-background-color: #14181f;
+        --sidebar-item-hover-color: #10141b;
+        --sidebar-active-item-color: #10141b;
+        --sidebar-active-item-border-color: #b4e3c9;
+        --dk-text-value-background: unset;
+        --dk-card-background: #14181f;
+        --dk-tooltip-background: rgb(14, 17, 23);
+
+        --portal-background: #14181f;
+        --portal-box-shadow: rgba(0, 0, 0, 0.95) 0px 4px 16px;
+        --select-hover-background: rgba(255, 255, 255, .32);
+    }
+
+    /* Main content */
+    .appview-container > :nth-child(2 of section) {
+        background-color: rgb(14, 17, 23);
+    }
+    /*  */
+
+    div[data-modal-container='true']::before {
+        background-color: rgba(100, 100, 100, 0.5) !important;
+    }
+
+    div[data-modal-container='true'] > div:first-child > div:first-child {
+        background-color: rgb(14, 17, 23) !important;
+    }
+}
+/* ... */

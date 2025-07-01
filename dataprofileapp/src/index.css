@@ -1,0 +1,198 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #1a1a1a; /* Dark background */
+  color: #e0e0e0; /* Light text color for general content */
+  min-height: 100vh; /* Ensure body takes full viewport height */
+  display: flex; /* Use flexbox for body to ensure dashboard container fills height */
+  flex-direction: column;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-wrap: wrap; /* Allows sections to wrap on smaller screens */
+  padding: 20px;
+  gap: 20px; /* Space between the main left and right sections */
+  flex-grow: 1; /* Allow dashboard to grow and fill available space */
+  align-items: flex-start; /* Align items to the top within the flex container */
+  justify-content: center; /* Center content horizontally if space allows */
+}
+
+/* Common panel styling for all cards */
+.panel-card {
+  background-color: #2c2c2c; /* Darker panel background */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Stronger shadow for dark theme */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Align content to the top */
+}
+
+/* Left Section containing Status Pie and Test Suite Progress Bars */
+.left-section {
+  flex: 2; /* Takes more space than right section */
+  min-width: 480px; /* Minimum width for the left column to prevent squishing */
+  max-width: 65%; /* Max width to ensure responsiveness */
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Space between the two charts on the left */
+}
+
+/* Right Section containing Test Type Pie and Test Details Table */
+.right-section {
+  flex: 1; /* Takes less space */
+  min-width: 380px; /* Minimum width for the right column */
+  max-width: 35%; /* Max width to ensure responsiveness */
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Space between the two charts/table on the right */
+}
+
+/* Individual Chart/Table specific flex properties */
+.status-chart-panel {
+  height: 350px; /* Fixed height for the status chart panel */
+  width: 100%; /* Occupy full width of its parent */
+  align-items: center; /* Center the pie chart horizontally */
+}
+
+.test-suites-summary-panel { /* This is the new container for the progress bars */
+  flex-grow: 1; /* Allow it to grow and fill remaining space in the left column */
+  width: 100%;
+}
+
+.test-type-chart-panel {
+  height: 300px; /* Fixed height for test type chart */
+  width: 100%;
+  align-items: center;
+}
+
+.test-details-panel {
+  flex-grow: 1; /* Allow table to grow and fill remaining space in right column */
+  width: 100%;
+  overflow-x: auto; /* For table horizontal scroll */
+}
+
+h3.chart-title {
+  color: #f0f0f0; /* Light color for chart titles */
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.no-data-message {
+  text-align: center;
+  color: #b0b0b0; /* Light gray for no data messages */
+  padding: 20px;
+}
+
+.error-message {
+  color: #ff6b6b; /* Reddish color for error messages */
+}
+
+/* Table specific styles for dark theme */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  color: #e0e0e0; /* Light text for table content */
+}
+
+th, td {
+  border: 1px solid #444; /* Darker border for table cells */
+  padding: 8px;
+  text-align: left;
+  font-size: 0.8em;
+  vertical-align: top;
+  word-wrap: break-word; /* Ensure long text breaks */
+}
+
+th {
+  background-color: #3a3a3a; /* Slightly lighter dark background for headers */
+  white-space: nowrap;
+  color: #f0f0f0; /* White text for table headers */
+}
+
+/* Styles for Test Suite Progress Bars (from previous step, just ensure they are here) */
+.test-suite-progress-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Space between ID, bar, and legend */
+  width: 100%;
+  margin-bottom: 10px; /* Space between individual bars */
+}
+
+.test-suite-id {
+  font-size: 0.9em;
+  color: #e0e0e0; /* Light text for suite ID */
+  font-weight: bold;
+}
+
+.progress-bar-wrapper {
+  width: 100%;
+  height: 18px; /* Height of the progress bar */
+  background-color: #444; /* Background for the bar when no segments fill it */
+  border-radius: 9px; /* Half of height for pill shape */
+  overflow: hidden; /* Ensures segments stay within bounds */
+  display: flex;
+}
+
+.progress-segment {
+  height: 100%;
+  transition: width 0.5s ease-in-out; /* Smooth transition for width changes */
+}
+
+.progress-legend {
+  font-size: 0.75em;
+  color: #b0b0b0; /* Light gray for legend text */
+  display: flex;
+  flex-wrap: wrap; /* Allow legend items to wrap */
+  gap: 15px; /* Space between legend items */
+}
+
+.progress-legend span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.progress-legend span::before {
+  content: '•';
+  font-size: 1.2em;
+  line-height: 1;
+  color: inherit; /* Dot color matches text color */
+}
+
+.test-suite-progress-bar-container.no-data {
+  text-align: center;
+  color: #b0b0b0;
+  padding: 10px 0;
+  border: 1px dashed #555;
+  border-radius: 5px;
+}
+
+/* Recharts specific styling for dark theme */
+/* Tooltip background and text */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: #333 !important;
+  border-color: #555 !important;
+  color: #f0f0f0 !important;
+}
+
+.recharts-tooltip-wrapper .recharts-tooltip-item {
+  color: #f0f0f0 !important;
+}
+
+/* Legend text color */
+.recharts-legend-wrapper {
+  color: #e0e0e0 !important;
+}
+
+/* Pie chart labels */
+.recharts-text {
+    fill: #e0e0e0 !important;
+}

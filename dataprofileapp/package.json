@@ -1,0 +1,48 @@
+{
+  "name": "dataprofileapp",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fontsource/roboto": "^5.2.5",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
+    "@mui/styled-engine-sc": "^7.0.2",
+    "@mui/x-data-grid": "^8.1.0",
+    "@syncfusion/ej2-react-circulargauge": "^29.2.4",
+    "axios": "^1.8.4",
+    "date-fns": "^4.1.0",
+    "formik": "^2.4.6",
+    "immutability-helper": "^3.1.1",
+    "keycloak": "^1.2.0",
+    "keycloak-js": "^26.2.0",
+    "react": "^19.1.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dom": "^19.1.0",
+    "react-router": "^7.5.0",
+    "react-router-dom": "^7.5.1",
+    "recharts": "^2.15.3",
+    "styled-components": "^6.1.17",
+    "yup": "^1.6.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "vite": "^6.2.0"
+  }
+}
