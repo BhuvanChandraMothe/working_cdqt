@@ -588,9 +588,7 @@ class TestResultWithDetails(BaseModel):
     disposition: Optional[str]
     subset_condition: Optional[str]
     result_query: Optional[str]
-    # Note: 'test_description' is present in both models.
-    # We'll use the one from test_results as default, but you can choose.
-    test_description: Optional[str]
+    test_description: Optional[str] #This is present in both the test results and test types
     test_run_id: UUID4
     table_groups_id: Optional[UUID4]
     dq_prevalence: Optional[float]
@@ -601,6 +599,8 @@ class TestResultWithDetails(BaseModel):
     test_name_short: Optional[str]
     test_name_long: Optional[str]
     test_type_description: Optional[str] # Renamed to avoid clash with test_results.test_description
+    
+    
 
     class Config:
         orm_mode = True
@@ -610,6 +610,15 @@ class TestResultWithDetails(BaseModel):
             datetime: lambda v: v.isoformat()
         }
  
+ 
+ 
+class TestResultsWithConnection(BaseModel):
+    connection_name: Optional[str]
+    db_type:Optional[str]
+    results: List[TestResultWithDetails]
+    
+    
+    
 # You can also add a response model for the list of results
 class TestResultsResponse(BaseModel):
     results: List[TestResultWithDetails]
@@ -742,7 +751,7 @@ class TestResultDetail(BaseModel):
     test_action: Optional[str]
     disposition: Optional[str]
     subset_condition: Optional[str]
-    result_query: str
+    result_query: Optional[str]
     test_description: str
     test_run_id: UUID4
     table_groups_id: UUID4
@@ -795,6 +804,20 @@ class TrendDataPoint(BaseModel):
 class DataQualityTrendResponse(BaseModel):
     trend_data: List[TrendDataPoint]
     metric_label: str
+    
+class DailyTrendDataPoint(BaseModel):
+    date: datetime
+    dq_score: float
+    total_tests: int
+    passed_tests: int
+    failed_tests: int
+    warning_tests: int
+    error_tests: int
+    # Health Dimension specific failures (counts)
+    schema_drift_failures: int = 0
+    data_drift_failures: int = 0
+    volume_failures: int = 0
+    recency_failures: int = 0
 
 # --- 3. Recent Test Runs (Left-Hand Panel & Table) ---
 
@@ -817,7 +840,7 @@ class RecentTestRunDetail(BaseModel):
     connection_id: int
     connection_name: str
     db_type: str
-    tables: Any
+    explicit_tables_list: Any
 
 class RecentTestRunsTableResponse(BaseModel):
     total_count: int
@@ -1159,6 +1182,7 @@ class TestTypeFormDefinition(BaseModel):
     test_description: Optional[str] = Field(None, description="General description of the test")
     usage_notes: Optional[str] = Field(None, description="Usage notes for the test")
     test_scope: str = Field(..., description="The scope of the test (column, table, referential, custom)")
+    severity: Optional[str] = Field(None, description="Severity level of the test")
 
     # Information for the 'column_name' field
     column_name_prompt: Optional[str] = Field(None, description="Custom prompt for the column name field")

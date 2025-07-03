@@ -66,6 +66,7 @@ from Backend.models.models import (
     TestResultDetail,
     TestSuiteCounts,
     TestSuiteSummary,
+    TestResultsWithConnection,DailyTrendDataPoint
     
     
     
@@ -1254,23 +1255,30 @@ def run_test_suites(project_code: str, test_suite: str, minutes_offset: int=0):
     except Exception as e:
         LOG.error(f"Error executing tests for group {project_code}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-    
-
-def display_test_results(test_suite_id: str, db: Session) -> List[TestResultWithDetails]:
+   
+def display_test_results(test_suite_id: str, db: Session) -> TestResultsWithConnection:
     """
     Service function to fetch detailed test results for a given test suite ID,
-    including enriched information from the test_types table.
+    including enriched information from the test_types table, connection name, and db type.
     """
     try:
         results = (
-            db.query(TestResultModel, TestTypeModel)
+            db.query(
+                TestResultModel,
+                TestTypeModel,
+                Connection.connection_name, # Select connection name
+                Connection.sql_flavor.label("db_type") # Select sql_flavor as db_type
+            )
             .join(TestTypeModel, TestResultModel.test_type == TestTypeModel.test_type)
+            .join(TestSuiteModel, TestResultModel.test_suite_id == TestSuiteModel.id) # Join TestSuiteModel
+            .join(TableGroupModel, TestSuiteModel.table_groups_id == TableGroupModel.id) # Join TableGroupModel
+            .join(Connection, TableGroupModel.connection_id == Connection.connection_id) # Join ConnectionModel
             .filter(TestResultModel.test_suite_id == test_suite_id)
             .all()
         )
 
         detailed_results = []
-        for test_result, test_type_details in results:
+        for test_result, test_type_details, connection_name, db_type in results:
             detailed_results.append(
                 TestResultWithDetails(
                     id=test_result.id,
@@ -1298,7 +1306,7 @@ def display_test_results(test_suite_id: str, db: Session) -> List[TestResultWith
                     disposition=test_result.disposition,
                     subset_condition=test_result.subset_condition,
                     result_query=test_result.result_query,
-                    test_description=test_result.test_description, # From test_results table
+                    test_description=test_result.test_description,
                     test_run_id=test_result.test_run_id,
                     table_groups_id=test_result.table_groups_id,
                     dq_prevalence=test_result.dq_prevalence,
@@ -1307,15 +1315,21 @@ def display_test_results(test_suite_id: str, db: Session) -> List[TestResultWith
                     # Fields from TestTypeModel
                     test_name_short=test_type_details.test_name_short,
                     test_name_long=test_type_details.test_name_long,
-                    test_type_description=test_type_details.test_description, # From test_types table
+                    test_type_description=test_type_details.test_description,
                 )
+                
+                
             )
-        return detailed_results
+        return TestResultsWithConnection(
+            connection_name=connection_name,
+            db_type=db_type,
+            results=detailed_results
+        )
     except SQLAlchemyError as e:
         raise HTTPException(status_code=500, detail=f"Database error: {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
-    
+
     
 #------------------- Anomaly results -------------------
 
@@ -1573,23 +1587,27 @@ def get_data_quality_trend_service(duration: str, metric: str, db: Session) -> D
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
+#-------------------------------------------------
+
 
 def get_recent_test_runs_service(limit: int, db: Session) -> RecentTestRunsTableResponse:
     try:
         recent_runs_query = db.query(
             TestRunModel,
-            Connection.connection_name,
-            Connection.connection_id,
             TestSuiteModel.test_suite,
             TestSuiteModel.id.label("test_suite_id_alias"),
             TableGroupModel.table_groups_name,
-            TableGroupModel.id.label("table_group_id_alias")
+            TableGroupModel.id.label("table_group_id_alias"),
+            Connection.sql_flavor.label("db_type_alias"),  
+            Connection.connection_id.label("connection_id_alias"), 
+            Connection.connection_name.label("connection_name_alias"), 
+            TableGroupModel.explicit_table_list 
         ).join(
             TestSuiteModel, TestRunModel.test_suite_id == TestSuiteModel.id
         ).join(
             TableGroupModel, TestSuiteModel.table_groups_id == TableGroupModel.id
         ).join(
-            Connection, TestRunModel.connection_id == Connection.id
+            Connection, TableGroupModel.connection_id == Connection.connection_id 
         ).order_by(
             TestRunModel.test_starttime.desc()
         ).limit(limit)
@@ -1597,11 +1615,8 @@ def get_recent_test_runs_service(limit: int, db: Session) -> RecentTestRunsTable
         recent_runs = recent_runs_query.all()
 
         formatted_test_runs = []
-        for run, test_suite_name, test_suite_id, table_group_name, table_group_id , connection_id, connection_name, sql_flavor, explicit_table_list in recent_runs:
+        for run, test_suite_name, test_suite_id, table_group_name, table_group_id, db_type, connection_id, connection_name, explicit_tables_list in recent_runs:
             formatted_test_runs.append(RecentTestRunDetail(
-                connection_id=connection_id,
-                connection_name=connection_name,
-                db_type = sql_flavor,
                 test_run_id=run.id,
                 test_suite_name=test_suite_name,
                 test_suite_id=test_suite_id,
@@ -1609,8 +1624,11 @@ def get_recent_test_runs_service(limit: int, db: Session) -> RecentTestRunsTable
                 records_tested=str(run.test_ct) if run.test_ct is not None else "N/A",
                 duration_display=format_duration_display(run.duration),
                 table_group_name=table_group_name,
-                tables = explicit_table_list,
-                table_group_id=table_group_id
+                table_group_id=table_group_id,
+                db_type=db_type,
+                connection_id=connection_id,
+                connection_name=connection_name,
+                explicit_tables_list=explicit_tables_list
             ))
 
         total_count = db.query(TestRunModel).count()
@@ -1623,7 +1641,8 @@ def get_recent_test_runs_service(limit: int, db: Session) -> RecentTestRunsTable
         raise HTTPException(status_code=500, detail=f"Database error: {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
-
+    
+    
 
 def get_data_sources_service(db: Session) -> List[DataSource]:
     try:

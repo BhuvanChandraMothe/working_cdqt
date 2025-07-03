@@ -105,7 +105,7 @@ from Backend.models.models import (
     TestSuiteMetadata,
     TestSuiteResponse,
     TestResultDetail,
-    TestResultWithDetails,
+    TestResultsWithConnection,
     TestSuiteSummary,
     TableGroupUpdate,
     
@@ -364,7 +364,7 @@ def delete_test_suite_endpoint(test_suite_id: str, db: Session = Depends(get_db)
     return delete_test_suite(test_suite_id, db)
 
 
-@app.get("/api/testsuites/{test_suite_id}/results", response_model=List[TestResultWithDetails],tags=["Test Suites"])
+@app.get("/api/testsuites/{test_suite_id}/results", response_model=TestResultsWithConnection,tags=["Test Suites"])
 def get_test_suite_results_endpoint(test_suite_id: str, db: Session = Depends(get_db)):
     """
     Fetch the results of a specific test suite.
@@ -389,13 +389,13 @@ def get_anomaly_results_for_table_group(table_group_id: UUID,group_by_table: boo
 
 
 #------------------- Test Dashboard Endpoints -------------------
-@app.get("/api/v1/data-quality/overview",response_model=OverallDataQualityOverviewResponse,tags=["New Test Dashboard"])
-async def get_overall_data_quality_overview(duration: str = Query("Last 30 days", description="Filter data by duration (e.g., 'Last 30 days', 'Last 7 days', 'Today')"),db: Session = Depends(get_db)):
-    """
-    Retrieves an overview of data quality metrics including overall score,
-    test failures, records tested, and test status.
-    """
-    return get_overall_data_quality_overview_service(duration, db)
+# @app.get("/api/v1/data-quality/overview",response_model=OverallDataQualityOverviewResponse,tags=["New Test Dashboard"])
+# async def get_overall_data_quality_overview(duration: str = Query("Last 30 days", description="Filter data by duration (e.g., 'Last 30 days', 'Last 7 days', 'Today')"),db: Session = Depends(get_db)):
+#     """
+#     Retrieves an overview of data quality metrics including overall score,
+#     test failures, records tested, and test status.
+#     """
+#     return get_overall_data_quality_overview_service(duration, db)
 
 
 @app.get("/api/v1/data-quality/overview",response_model=OverallDataQualityOverviewResponse,responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}},tags=["New Test Dashboard"])
@@ -422,6 +422,11 @@ async def get_recent_test_runs(
     return get_recent_test_runs_service(limit, db)
 
 
+#---------------------------------
+
+
+
+
 @app.get("/api/v1/data-quality/trend",response_model=DataQualityTrendResponse,responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}},tags=["New Test Dashboard"])
 async def get_data_quality_trend(
     duration: str = Query("Last 30 days", description="Defines the X-axis range (e.g., 'Last 30 days', 'Last 7 days', 'Today')"),
@@ -432,6 +437,8 @@ async def get_data_quality_trend(
     Retrieves data quality trend data for charting.
     """
     return get_data_quality_trend_service(duration, metric, db)
+
+
 
 @app.get("/api/v1/data-sources",response_model=List[DataSource],tags=["New Test Dashboard"])
 async def get_data_sources(db: Session = Depends(get_db)):
@@ -699,21 +706,16 @@ async def get_test_definition_by_id(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An unexpected error occurred: {e}")
     
-    
 @app.patch(
-    "/test-definitions/{test_definition_id}",
-    response_model=TestDefinition,
-    summary="Update a Test Definition"
+"/test-definitions/{test_definition_id}",
+response_model=TestDefinition,
+summary="Update a Test Definition"
 )
 async def update_test_definition(
     test_definition_id: UUID,
     updates: TestDefinitionUpdate,
     db: Session = Depends(get_db)
 ):
-    """
-    Updates an existing test definition. Supports partial updates (PATCH).
-    Only the fields provided in the request body will be updated.
-    """
     try:
         test_definition = db.query(TestDefinitionModel).filter(
             TestDefinitionModel.id == test_definition_id
@@ -725,27 +727,24 @@ async def update_test_definition(
                 detail="Test Definition not found"
             )
 
-        # Apply updates from the Pydantic model to the SQLAlchemy model
-        # Use exclude_unset=True to only update fields that were actually provided in the request
-        update_data = updates.from_orm(exclude_unset=True)
+        update_data = updates.dict(exclude_unset=True)
+
         for field, value in update_data.items():
             setattr(test_definition, field, value)
 
-        # Set last_manual_update explicitly if your ORM model's Column definition
-        # doesn't handle `onupdate=datetime.now` automatically.
-        # If your TestDefinitionModel already has `onupdate=datetime.now` for last_manual_update,
-        # this line is redundant but harmless.
         test_definition.last_manual_update = datetime.now()
 
         db.commit()
-        db.refresh(test_definition) # Refresh the object to get updated values (like last_manual_update)
+        db.refresh(test_definition)
 
         return TestDefinition.from_orm(test_definition)
+
     except SQLAlchemyError as e:
-        db.rollback() # Rollback on error
+        db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error during update: {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
+
 
 @app.get(
     "/test-definitions/{test_definition_id}/details",
@@ -933,6 +932,9 @@ async def create_test_definition(
         new_test_definition_dict["test_active"] = 'Y' if new_test_definition_dict.get("test_active", True) else 'N'
         new_test_definition_dict["lock_refresh"] = 'Y' if new_test_definition_dict.get("lock_refresh", False) else 'N'
 
+        
+        if test_definition_data.custom_query is not None:
+            new_test_definition_dict["custom_query"] = test_definition_data.custom_query
         # Inherited values if not explicitly provided
         if test_definition_data.severity is None:
             new_test_definition_dict["severity"] = test_suite.severity if test_suite.severity else test_type_details.default_severity
@@ -1187,6 +1189,7 @@ async def get_test_type_form_fields(
             test_scope=test_type_details.test_scope,
             column_name_prompt=test_type_details.column_name_prompt,
             column_name_help=test_type_details.column_name_help,
+            severity = test_type_details.default_severity,
             dynamic_parameters=dynamic_parameters
         )
 

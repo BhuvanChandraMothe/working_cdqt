@@ -67,7 +67,7 @@ def run_test_queries(dctParms, strTestRunID, strTestTime, strProjectCode, strTes
             # Execute list, returning test results
             LOG.info("CurrentStep: Executing Non-CAT Test Queries")
             lstTestResults, colResultNames, intErrors = RunThreadedRetrievalQueryList(
-                "PROJECT", lstTestQueries, dctParms["max_threads"], spinner
+                "PROJECT", lstTestQueries, dctParms["max_threads"]
             )
 
             # Copy test results to DK DB
